@@ -1,0 +1,173 @@
+{
+  "personal": {
+    "name": "류OO",
+    "targetRole": "서비스 기획 (AI 가상 융합 기반 실습 플랫폼)",
+    "applicationDate": "2026.04.14",
+    "applicationChannel": "서치펌 (피플렙)",
+    "militaryService": "육군 만기제대"
+  },
+
+  "education": [
+    {
+      "school": "강남대학교",
+      "major": "컴퓨터공학과",
+      "period": "2014.03 ~ 2020.02",
+      "degree": "학사",
+      "gpa": "2.66 / 4.5"
+    },
+    {
+      "school": "영등포고등학교",
+      "major": null,
+      "period": "2011.03 ~ 2014.02",
+      "degree": "고등학교 졸업",
+      "gpa": null
+    }
+  ],
+
+  "certifications": [
+    "정보처리기사",
+    "운전면허 1종 보통"
+  ],
+
+  "awards": [
+    "KSA 한국표준협회 프로젝트 대상 수상 (OpenCV 이미지 기반 외관 불량 검출 프로젝트)"
+  ],
+
+  "coreSkills": {
+    "planning": ["서비스 기획", "UX 기획 (Figma)", "요구사항 정의서(PRD)", "스토리보드", "정보구조(IA) 설계", "SEO 최적화"],
+    "projectManagement": ["프로젝트 매니지먼트 (PM)", "Agile / Scrum", "WBS", "리스크 관리", "일정·범위·예산 관리"],
+    "dataAnalysis": ["Google Analytics (GA)", "WireShark 패킷 분석"],
+    "development": ["React", "Spring Boot", "SQL", "Unity / C# (기획 레벨)"],
+    "ai": ["프롬프트 엔지니어링 (Gemini, Claude, Midjourney)", "AI 코딩 어시스턴트 (Claude, Antigravity)"],
+    "collaboration": ["Notion", "Slack", "Jira", "Figma"]
+  },
+
+  "coreStrengths": [
+    {
+      "title": "플랫폼 DNA를 가진 기술 지향적 기획자",
+      "description": "웹·백엔드·VR/AR·Apple Vision Pro 등 다양한 도메인의 데이터 플로우 설계 역량 보유. 시스템 아키텍처 이해를 바탕으로 개발팀과 밀도 있게 소통하며 기술적 제약을 창의적으로 해결."
+    },
+    {
+      "title": "데이터 기반 UX 개선 및 성과 창출",
+      "description": "GA·WireShark 등 분석 도구를 활용한 팩트 기반 인사이트 도출. R&D 환경의 불확실성 속에서 KPI 수립 후 팀 매출 300% 성장(3.8억→11.5억) 견인."
+    },
+    {
+      "title": "AI 및 신기술 활용을 통한 업무 해상도 극대화",
+      "description": "Claude, Antigravity 등 AI 코딩 어시스턴트를 실무 워크플로우에 도입하여 반복 업무 자동화, 아이디어 시각화, 기술 스택 학습 가속화."
+    }
+  ],
+
+  "experience": {
+    "totalYears": "3년 1개월",
+    "companies": [
+      {
+        "company": "㈜이트라이브",
+        "team": "CTS(MX) 팀",
+        "role": "매니저",
+        "period": "2024.07 ~ 현재 (1년 9개월)",
+        "companyInfo": {
+          "business": "UI/UX 컨설팅, 웹·모바일 구축(SI/SM), 메타버스 플랫폼, 실감형 콘텐츠(AR/VR/XR) 개발",
+          "revenue": "170억",
+          "employees": "150명",
+          "scale": "중소기업"
+        },
+        "summary": "메타버스·XR 기반 B2G 프로젝트의 제안~납품 전체 라이프사이클 주도. 신규 R&D 환경에서 데이터 기반 구조적 기획과 KPI 수립으로 팀 매출 3배 성장 견인.",
+        "projects": [
+          {
+            "name": "KISTi 고령자용 VR 인지·운동 융합 훈련 서비스 개선",
+            "period": "2024.07 ~ 진행 중",
+            "purpose": "6개년 고령자용 인지 융합 훈련 기능성 VR 연구사업의 3년차 고도화 및 3개년 임상 실험 진행",
+            "role": "PM / 기획",
+            "responsibilities": [
+              "전체 개발 타임라인 및 리스크 관리, 연구진·개발사 커뮤니케이션 리딩",
+              "요구사항 명세서(PRD) 고도화, 콘텐츠 시나리오 개선 및 임상시험자 관리 백어드민 UI/UX 리팩토링",
+              "4인 멀티 VR·AR 상호작용 기획, QA 및 WBS에 따른 소프트웨어 납품"
+            ],
+            "achievements": [
+              "WireShark 패킷 분석으로 레거시 코드의 프레임 병목 현상 해결 → 일정 내 데모 시연 성공",
+              "목표 120명 중 60명 1차 임상시험 크리티컬 이슈 없이 성공 완료",
+              "일정 준수·소프트웨어 품질 입증으로 기관 신뢰도 확보 및 차기 사업 연계 기반 마련"
+            ]
+          },
+          {
+            "name": "제주 꿈키올래 진로직업체험센터 Apple Vision Pro 콘텐츠 구축",
+            "period": "2025.09 ~ 2025.11 (3개월)",
+            "purpose": "Apple Vision Pro 기반 직업 체험 콘텐츠 9종 신규 기획·개발, ABM·MDM 관리",
+            "role": "PM / 기획",
+            "responsibilities": [
+              "9종 직업 컨셉·시나리오 기획, 상호작용, UX 구조설계",
+              "일정·범위 관리, 기능 스코프 조율, 클라이언트 커뮤니케이션 리딩"
+            ],
+            "achievements": [
+              "최신 공간 컴퓨팅 디바이스를 활용한 9종 직업 체험 콘텐츠 시나리오 및 UX 구조 설계",
+              "촉박한 일정 속 Agile 프로세스 도입으로 리스크 관리, 클라이언트로부터 추가 사업 연계 확답"
+            ]
+          },
+          {
+            "name": "DST(전문대학혁신지원사업) 실감형 교육 콘텐츠 개발 운영",
+            "period": "2025.02 ~ 2025.03 (1개월)",
+            "purpose": "학생 실습용 미숙아호흡기간호 VR 콘텐츠 제작",
+            "role": "PM / 기획",
+            "responsibilities": [
+              "간호학 실무 문서 기반 시나리오 및 콘텐츠 기획",
+              "학번 관리를 위한 DB 설계, 일정 조율 및 관리, QA"
+            ],
+            "achievements": [
+              "당해년도 하반기 실습 콘텐츠로 채택 및 추가 콘텐츠 제작 요청 확보"
+            ]
+          }
+        ]
+      },
+      {
+        "company": "㈜웹마인드",
+        "team": "기획팀",
+        "role": "주임",
+        "period": "2023.04 ~ 2024.07 (1년 4개월)",
+        "companyInfo": {
+          "business": "웹·모바일 구축 및 운영, UI/UX 컨설팅, 온라인 마케팅, 소프트웨어 개발",
+          "revenue": "50억",
+          "employees": "30명",
+          "scale": "중소기업"
+        },
+        "summary": "웹 서비스 구축 A~Z(제안, IA 설계, 요구사항 정의, 화면설계, 일정·예산 관리) 주도적 수행. 백엔드 아키텍처 이해를 바탕으로 기술적 제약을 고려한 논리적 기획 강점.",
+        "projects": [
+          {
+            "name": "물질성분 시험·인증 기업 웹사이트 고도화",
+            "period": "2024.01 ~ 2024.06 (6개월)",
+            "purpose": "웹사이트 리뉴얼",
+            "role": "PM / 기획",
+            "responsibilities": [
+              "영업·제안, 클라이언트 커뮤니케이션, 기획, 일정 관리",
+              "동종 업계 시장조사·분석 및 최신 웹 트렌드 조사를 통한 UI/UX 개선 방향 제안",
+              "GA 스크립트 삽입 및 IA 구조를 SEO 기법으로 구축"
+            ],
+            "achievements": [
+              "GA 기반 트래킹 환경 구축으로 데이터 기반 지속적 개선 프로세스 마련",
+              "방대한 기술 콘텐츠 IA를 사용자 인지 관점에서 재편, 정보 접근성 및 페이지 로드 속도 향상"
+            ]
+          },
+          {
+            "name": "건설협의회 웹사이트 구축",
+            "period": "2023.06 ~ 2023.09 (3개월)",
+            "purpose": "16개 건설사가 이용하는 웹페이지 및 어드민 페이지 기획",
+            "role": "기획",
+            "responsibilities": [
+              "사업 제안서 작성 및 PT 참여로 신규 프로젝트 수주",
+              "요구사항 분석, 스토리보드 제작, 일정/리스크 관리"
+            ],
+            "achievements": [
+              "성공적 런칭을 통한 추가 프로젝트 연계 달성"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  "preferences": {
+    "industries": ["AI", "XR/메타버스", "SaaS", "EdTech", "헬스케어"],
+    "companySize": ["중견기업", "대기업"],
+    "workStyle": ["자체 서비스/프로덕트 기반", "데이터 기반 의사결정 문화"],
+    "motivation": "단발성 프로젝트 중심의 환경을 넘어, 프로덕트에 대한 완전한 주도성을 가지고 기획부터 런칭 후 데이터 기반 고도화까지 깊게 몰입할 수 있는 자체 서비스 환경으로 이직 희망"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "류OO",
+  "targetRole": "서비스 기획 / PM (AI·XR·메타버스 도메인)",
+  "totalExperience": "3년 1개월",
+  "skills": [
+    "서비스 기획",
+    "프로젝트 매니지먼트 (PM)",
+    "UX/UI 기획 (Figma)",
+    "데이터 분석 (Google Analytics, WireShark)",
+    "요구사항 정의서(PRD) / 스토리보드 작성",
+    "정보구조(IA) 설계 / SEO 최적화",
+    "Agile / Scrum 프로세스 운영",
+    "React / Spring Boot / SQL 기본 이해",
+    "Unity / C# (XR 클라이언트 기획 레벨)",
+    "프롬프트 엔지니어링 (Gemini, Claude, Midjourney)",
+    "Notion / Slack / Jira 협업 도구"
+  ],
+  "certifications": [
+    "정보처리기사",
+    "운전면허 1종 보통"
+  ],
+  "strengths": [
+    "웹·백엔드·VR/AR·Apple Vision Pro 등 다양한 도메인의 데이터 플로우 설계 역량 보유",
+    "GA·WireShark 등 분석 도구를 활용한 데이터 기반 UX 개선 및 의사결정",
+    "R&D 환경의 불확실성 속에서 KPI 수립 후 팀 매출 300% 성장(3.8억→11.5억) 견인",
+    "AI 코딩 어시스턴트(Claude, Antigravity)를 워크플로우에 도입하여 업무 효율 극대화",
+    "직군 간 기술 언어 번역 능력 — 프론트엔드, 백엔드, 3D, Unity 팀과 원활한 소통"
+  ],
+  "experience": [
+    {
+      "company": "㈜이트라이브",
+      "role": "CTS(MX) 팀 매니저",
+      "period": "2024.07 ~ 현재 (1년 9개월)",
+      "description": "메타버스·XR 기반 B2G 프로젝트의 제안~납품 전체 라이프사이클 주도. 신규 R&D 환경에서 데이터 기반 구조적 기획과 KPI 수립을 통해 팀 매출 3배 성장 견인.",
+      "achievements": [
+        "KISTi 고령자용 VR 인지·운동 융합 훈련 — 6개년 연구사업 PM. WireShark 패킷 분석으로 프레임 병목 해결, 120명 임상시험 중 60명 1차 완료",
+        "제주 꿈키올래 Apple Vision Pro 직업체험 콘텐츠 9종 기획·PM (3개월). Agile 프로세스 도입, 추가 사업 연계 확답",
+        "DST 실감형 교육 콘텐츠(미숙아호흡기간호 VR) 기획·PM (1개월). 추가 콘텐츠 제작 요청 확보",
+        "이트라이브 20주년 기념 영상 스토리보드 기획·제작 — 사내 이벤트 1위 수상"
+      ]
+    },
+    {
+      "company": "㈜웹마인드",
+      "role": "기획팀 주임",
+      "period": "2023.04 ~ 2024.07 (1년 4개월)",
+      "description": "웹 서비스 구축 A~Z(제안, IA 설계, 요구사항 정의, 화면설계, 일정·예산 관리) 주도적 수행. 백엔드 아키텍처 이해를 바탕으로 기술적 제약을 고려한 논리적 기획 강점.",
+      "achievements": [
+        "물질성분 시험·인증 기업 웹사이트 고도화 (6개월) — GA 트래킹 환경 구축, IA 재편으로 정보 접근성·로드 속도 향상",
+        "건설협의회 웹사이트 구축 (3개월) — 16개 건설사 사용 웹+어드민 기획, 사업 제안PT로 수주, 추가 프로젝트 연계 달성"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "school": "강남대학교",
+      "major": "컴퓨터공학과",
+      "period": "2014.03 ~ 2020.02",
+      "degree": "학사"
+    }
+  ],
+  "preferences": {
+    "industries": ["AI", "XR/메타버스", "SaaS", "EdTech", "헬스케어"],
+    "companySize": ["중견기업", "대기업"],
+    "workStyle": ["자체 서비스/프로덕트 기반", "데이터 기반 의사결정 문화"]
+  }
+}
