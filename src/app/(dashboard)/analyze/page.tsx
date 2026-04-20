@@ -98,6 +98,8 @@ export default function AnalyzePage() {
     // 순차 분석
     for (const id of ids) {
       setCurrentId(id);
+      // 현재 분석 시작 → 대기 큐에서 즉시 제거
+      setQueueIds((prev) => prev.filter((qId) => qId !== id));
       try {
         await fetch("/api/analyze", {
           method: "POST",
@@ -107,8 +109,6 @@ export default function AnalyzePage() {
       } catch (error) {
         console.error(`분석 실패 (${id}):`, error);
       }
-      // 완료된 건 큐에서 제거
-      setQueueIds((prev) => prev.filter((qId) => qId !== id));
       await fetchJobs();
     }
 
