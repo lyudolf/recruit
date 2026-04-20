@@ -18,11 +18,25 @@ export interface Analysis {
   reasoning: string;          // CoT 추론 과정 원문
 }
 
-// ─── 분석 상태 ───
-export type AnalysisStatus = "pending" | "analyzing" | "completed" | "failed";
+// ─── 공고 상태 흐름 ───
+// 스크랩 → 분석대기 → 분석중 → 분석완료 → 지원완료 → 서류통과/불합격 → 면접대기 → 최종합격
+export type AnalysisStatus =
+  | "scraped"    // URL 등록
+  | "queued"     // 분석 큐 등록
+  | "analyzing"  // AI 분석중
+  | "completed"  // 분석 완료
+  | "failed"     // 분석 실패
+  | "applied"    // 지원 완료
+  | "passed"     // 서류 통과
+  | "interview"  // 면접 대기
+  | "hired"      // 최종 합격
+  | "rejected";  // 불합격
+
+// ─── 탈락 단계 ───
+export type RejectedStage = "document" | "interview" | "final" | "other";
 
 // ─── 공고 출처 ───
-export type JobSource = "saramin" | "wanted" | "manual";
+export type JobSource = "saramin" | "wanted" | "jobkorea" | "manual";
 
 // ─── 채용 공고 (Firestore 문서) ───
 export interface Job {
@@ -32,11 +46,22 @@ export interface Job {
   company: string;
   title: string;
   jd: JobDescription;
+  experience?: string;
+  education?: string;
   location?: string;
   salary?: string;
   deadline?: string;
+  companyAddress?: string;
+  foundedDate?: string;
+  employeeCount?: string;
+  revenue?: string;
   analysis?: Analysis;
   analysisStatus: AnalysisStatus;
+  // 지원 관리 필드
+  appliedAt?: Timestamp;         // 지원 완료 일시
+  interviewDate?: string;        // 면접 예정일 (YYYY-MM-DD)
+  memo?: string;                 // 공고별 메모
+  rejectedStage?: RejectedStage; // 탈락 단계
   scrapedAt: Timestamp;
   analyzedAt?: Timestamp;
   createdAt: Timestamp;

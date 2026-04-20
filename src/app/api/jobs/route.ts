@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getJobs, addJob, isJobExists } from "@/lib/firebase/firestore";
-import { Timestamp } from "firebase/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 
 // GET /api/jobs — 전체 공고 목록 조회 (fitScore 내림차순)
 export async function GET() {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       location,
       salary,
       deadline,
-      scrapedAt: Timestamp.now(),
+      scrapedAt: FieldValue.serverTimestamp() as never,
     });
 
     return Response.json({ success: true, data: { id: jobId } }, { status: 201 });

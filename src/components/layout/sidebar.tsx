@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   Briefcase,
   BarChart3,
-  Search,
+  Sparkles,
   Settings,
   Zap,
 } from "lucide-react";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "대시보드", icon: BarChart3 },
-  { href: "/collect", label: "공고 수집", icon: Search },
+  { href: "/analyze", label: "공고 분석", icon: Sparkles },
   { href: "#settings", label: "설정", icon: Settings },
 ];
 

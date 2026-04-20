@@ -1,145 +1,216 @@
-import type { JobDescription, JobSource } from "@/types";
+import type { JobSource } from "@/types";
 
-// Firecrawl SDK 타입 (필요한 부분만 정의)
-interface FirecrawlScrapeResult {
+// Firecrawl 응답 타입
+interface FirecrawlResult {
   markdown?: string;
   metadata?: {
     title?: string;
     description?: string;
+    ogTitle?: string;
+    ogDescription?: string;
     sourceURL?: string;
+    [key: string]: unknown;
   };
 }
 
-// ─── Firecrawl 클라이언트 ───
-class FirecrawlClient {
-  private apiKey: string;
-  private baseUrl = "https://api.firecrawl.dev/v1";
-
-  constructor() {
-    const apiKey = process.env.FIRECRAWL_API_KEY;
-    if (!apiKey) {
-      throw new Error("FIRECRAWL_API_KEY 환경변수가 설정되지 않았습니다.");
-    }
-    this.apiKey = apiKey;
-  }
-
-  // 단일 페이지 스크래핑
-  async scrape(url: string): Promise<FirecrawlScrapeResult> {
-    const response = await fetch(`${this.baseUrl}/scrape`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({
-        url,
-        formats: ["markdown"],
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Firecrawl 스크래핑 실패 (${response.status}): ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data.data as FirecrawlScrapeResult;
-  }
-}
-
-// ─── 스크래핑 결과를 JD 구조로 파싱 ───
-export function parseJobFromMarkdown(
-  markdown: string,
-  sourceUrl: string,
-  source: JobSource
-): {
+// 스크래핑 결과 타입
+export interface ScrapedJobData {
   company: string;
   title: string;
-  jd: JobDescription;
-  location?: string;
-  salary?: string;
-  deadline?: string;
+  experience: string;
+  education: string;
+  salary: string;
+  deadline: string;
+  location: string;
+  companyAddress: string;
+  foundedDate: string;
+  employeeCount: string;
+  revenue: string;
+  rawMarkdown: string;
+  source: JobSource;
+  sourceUrl: string;
+}
+
+// ─── Firecrawl API 호출 ───
+async function callFirecrawl(url: string): Promise<FirecrawlResult> {
+  const apiKey = process.env.FIRECRAWL_API_KEY;
+  if (!apiKey) throw new Error("FIRECRAWL_API_KEY가 설정되지 않았습니다.");
+
+  const response = await fetch("https://api.firecrawl.dev/v1/scrape", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ url, formats: ["markdown"] }),
+    signal: AbortSignal.timeout(30000),
+  });
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`Firecrawl (${response.status}): ${text.slice(0, 200)}`);
+  }
+
+  let json: Record<string, unknown>;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`Firecrawl 응답 파싱 실패: ${text.slice(0, 200)}`);
+  }
+
+  return json.data as FirecrawlResult;
+}
+
+// ─── 사람인 OG Description 파싱 ───
+// 형식: "(주)딥파인, [딥파인] 서비스 기획자, 경력:경력 3~14년, 학력:대학교졸업(4년)이상, 면접 후 결정, 마감일:2026-05-31"
+function parseSaraminOgDescription(description: string): {
+  company: string;
+  title: string;
+  experience: string;
+  education: string;
+  salary: string;
+  deadline: string;
 } {
-  // 마크다운에서 섹션별 추출 (정규식 기반 휴리스틱)
-  const extractSection = (
-    text: string,
-    patterns: RegExp[]
-  ): string => {
-    for (const pattern of patterns) {
-      const match = text.match(pattern);
-      if (match?.[1]) return match[1].trim();
+  const parts = description.split(",").map((s) => s.trim());
+
+  const company = parts[0] || "미확인";
+  const title = parts[1] || "미확인 공고";
+
+  let experience = "";
+  let education = "";
+  let salary = "";
+  let deadline = "";
+
+  for (const part of parts) {
+    if (part.startsWith("경력:")) experience = part.replace("경력:", "").trim();
+    if (part.startsWith("학력:")) education = part.replace("학력:", "").trim();
+    if (part.startsWith("마감일:")) deadline = part.replace("마감일:", "").trim();
+    // 급여 관련
+    if (part.includes("만원") || part.includes("원이상") || part.includes("협의") || part.includes("면접")) {
+      if (!part.startsWith("경력") && !part.startsWith("학력") && !part.startsWith("마감일")) {
+        salary = part;
+      }
+    }
+  }
+
+  // 급여가 별도 필드로 안 잡히면, "면접 후 결정" 같은 게 salary임
+  if (!salary) {
+    for (const part of parts) {
+      if (part.includes("면접 후 결정") || part.includes("회사내규에 따름") || part.includes("협의")) {
+        salary = part;
+        break;
+      }
+    }
+  }
+
+  return { company, title, experience, education, salary, deadline };
+}
+
+// ─── 사람인 OG Title 파싱 ───
+// 형식: "[(주)딥파인] [딥파인] 서비스 기획자(D-41) - 사람인"
+function parseSaraminOgTitle(ogTitle: string): { company: string; title: string } {
+  // 마지막 " - 사람인" 제거
+  const cleaned = ogTitle.replace(/\s*-\s*사람인$/, "");
+
+  // [(기업명)] [가나다] 공고제목 패턴 매칭
+  const match = cleaned.match(/^\[([^\]]+)\]\s*(.+)$/);
+  if (match) {
+    return { company: match[1], title: match[2].trim() };
+  }
+  return { company: "", title: cleaned };
+}
+
+// ─── 마크다운 본문에서 기업정보 추출 ───
+function extractCompanyInfo(markdown: string): {
+  location: string;
+  companyAddress: string;
+  foundedDate: string;
+  employeeCount: string;
+  revenue: string;
+} {
+  const extract = (patterns: RegExp[]): string => {
+    for (const p of patterns) {
+      const m = markdown.match(p);
+      if (m?.[1]) return m[1].trim();
     }
     return "";
   };
 
-  // 회사명 추출
-  const company = extractSection(markdown, [
-    /(?:회사명|기업명|company)\s*[:\-]\s*(.+)/i,
-    /^#\s+(.+)/m,
-  ]);
+  return {
+    location: extract([
+      /(?:근무지역|근무\s*지|근무\s*위치)\s*[:\-]\s*(.+)/i,
+      /(?:지역)\s*(.+?(?:구|시|군|동))/,
+    ]),
+    companyAddress: extract([
+      /(?:기업\s*주소|회사\s*주소|주소)\s*[:\-]\s*(.+)/i,
+    ]),
+    foundedDate: extract([
+      /(?:설립일|설립\s*연도|설립)\s*[:\-]\s*(.+)/i,
+    ]),
+    employeeCount: extract([
+      /(?:사원\s*수|직원\s*수|재직자\s*수)\s*[:\-]\s*(.+)/i,
+    ]),
+    revenue: extract([
+      /(?:매출액|매출)\s*[:\-]\s*(.+)/i,
+    ]),
+  };
+}
 
-  // 공고 제목 추출
-  const title = extractSection(markdown, [
-    /(?:채용|모집|포지션|position)\s*[:\-]\s*(.+)/i,
-    /^##\s+(.+)/m,
-  ]);
+// ─── 메인 스크래핑 함수 ───
+export async function scrapeJobUrl(
+  url: string,
+  source: JobSource = "manual"
+): Promise<ScrapedJobData> {
+  const result = await callFirecrawl(url);
+  const markdown = result.markdown ?? "";
+  const metadata = result.metadata ?? {};
 
-  // 주요 업무
-  const mainTasks = extractSection(markdown, [
-    /(?:주요\s*업무|담당\s*업무|업무\s*내용|responsibilities)[\s\S]*?\n([\s\S]*?)(?=\n(?:자격|우대|근무|급여|마감|##|$))/i,
-  ]);
+  // OG 메타 기반 파싱
+  const ogTitle = (metadata.ogTitle ?? metadata.title ?? "") as string;
+  const ogDesc = (metadata.ogDescription ?? metadata.description ?? "") as string;
 
-  // 자격 요건
-  const requirements = extractSection(markdown, [
-    /(?:자격\s*요건|필수\s*요건|지원\s*자격|requirements|qualifications)[\s\S]*?\n([\s\S]*?)(?=\n(?:우대|근무|급여|마감|##|$))/i,
-  ]);
+  let company = "";
+  let title = "";
+  let experience = "";
+  let education = "";
+  let salary = "";
+  let deadline = "";
 
-  // 우대 사항
-  const preferred = extractSection(markdown, [
-    /(?:우대\s*사항|우대\s*조건|preferred|nice\s*to\s*have)[\s\S]*?\n([\s\S]*?)(?=\n(?:근무|급여|마감|혜택|복리|##|$))/i,
-  ]);
+  // 사람인 OG 파싱
+  if (ogDesc) {
+    const descParsed = parseSaraminOgDescription(ogDesc);
+    company = descParsed.company;
+    title = descParsed.title;
+    experience = descParsed.experience;
+    education = descParsed.education;
+    salary = descParsed.salary;
+    deadline = descParsed.deadline;
+  }
 
-  // 근무지
-  const location = extractSection(markdown, [
-    /(?:근무\s*지|근무\s*위치|근무\s*장소|location)\s*[:\-]\s*(.+)/i,
-  ]) || undefined;
+  // OG Title에서 보정
+  if (ogTitle) {
+    const titleParsed = parseSaraminOgTitle(ogTitle);
+    if (!company || company === "미확인") company = titleParsed.company;
+    if (titleParsed.title) title = titleParsed.title;
+  }
 
-  // 급여
-  const salary = extractSection(markdown, [
-    /(?:급여|연봉|salary|compensation)\s*[:\-]\s*(.+)/i,
-  ]) || undefined;
-
-  // 마감일
-  const deadline = extractSection(markdown, [
-    /(?:마감일|마감\s*기한|deadline|접수\s*기간)\s*[:\-]\s*(.+)/i,
-  ]) || undefined;
+  // 마크다운 본문에서 기업정보 추출
+  const companyInfo = extractCompanyInfo(markdown);
 
   return {
     company: company || "미확인",
     title: title || "미확인 공고",
-    jd: {
-      mainTasks: mainTasks || "정보 없음",
-      requirements: requirements || "정보 없음",
-      preferred: preferred || "정보 없음",
-      rawText: markdown,
-    },
-    location,
-    salary,
-    deadline,
+    experience: experience || "정보 없음",
+    education: education || "정보 없음",
+    salary: salary || "정보 없음",
+    deadline: deadline || "정보 없음",
+    location: companyInfo.location || "정보 없음",
+    companyAddress: companyInfo.companyAddress || "정보 없음",
+    foundedDate: companyInfo.foundedDate || "정보 없음",
+    employeeCount: companyInfo.employeeCount || "정보 없음",
+    revenue: companyInfo.revenue || "정보 없음",
+    rawMarkdown: markdown,
+    source,
+    sourceUrl: url,
   };
-}
-
-// ─── 단일 공고 URL 스크래핑 ───
-export async function scrapeJobUrl(
-  url: string,
-  source: JobSource = "manual"
-): Promise<ReturnType<typeof parseJobFromMarkdown>> {
-  const client = new FirecrawlClient();
-  const result = await client.scrape(url);
-
-  if (!result.markdown) {
-    throw new Error("스크래핑 결과에 마크다운 콘텐츠가 없습니다.");
-  }
-
-  return parseJobFromMarkdown(result.markdown, url, source);
 }

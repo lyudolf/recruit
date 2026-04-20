@@ -7,11 +7,9 @@ interface FitScoreBadgeProps {
 
 // 점수 구간별 색상 + 라벨
 function getScoreConfig(score: number) {
-  if (score >= 90) return { color: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30", label: "최적" };
-  if (score >= 70) return { color: "bg-blue-500/15 text-blue-600 border-blue-500/30", label: "우수" };
-  if (score >= 50) return { color: "bg-amber-500/15 text-amber-600 border-amber-500/30", label: "보통" };
-  if (score >= 30) return { color: "bg-orange-500/15 text-orange-600 border-orange-500/30", label: "약함" };
-  return { color: "bg-red-500/15 text-red-600 border-red-500/30", label: "부적합" };
+  if (score >= 85) return { color: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30", label: "최적 매칭" };
+  if (score >= 70) return { color: "bg-blue-500/15 text-blue-600 border-blue-500/30", label: "적합" };
+  return { color: "bg-red-500/15 text-red-600 border-red-500/30", label: "비추천" };
 }
 
 const sizeClasses = {

@@ -14,10 +14,16 @@ interface JobCardProps {
 // 분석 상태별 뱃지
 function StatusBadge({ status }: { status: Job["analysisStatus"] }) {
   const config = {
-    pending: { label: "대기 중", variant: "outline" as const },
+    scraped: { label: "스크랩", variant: "outline" as const },
+    queued: { label: "분석대기", variant: "secondary" as const },
     analyzing: { label: "분석 중...", variant: "secondary" as const },
     completed: { label: "분석 완료", variant: "default" as const },
     failed: { label: "분석 실패", variant: "destructive" as const },
+    applied: { label: "지원 완료", variant: "default" as const },
+    passed: { label: "서류 통과", variant: "default" as const },
+    interview: { label: "면접 대기", variant: "secondary" as const },
+    hired: { label: "최종 합격", variant: "default" as const },
+    rejected: { label: "불합격", variant: "destructive" as const },
   };
   const { label, variant } = config[status];
   return <Badge variant={variant} className="text-[10px]">{label}</Badge>;

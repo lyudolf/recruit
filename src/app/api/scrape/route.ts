@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 import { addJob, isJobExists } from "@/lib/firebase/firestore";
 import { scrapeJobUrl } from "@/lib/scraper/firecrawl";
-import { Timestamp } from "firebase/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import type { JobSource } from "@/types";
 
-// POST /api/scrape — 스크래핑 트리거
+// POST /api/scrape — 공고 URL 스크래핑 + Firestore 저장
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -26,20 +26,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Firecrawl로 스크래핑
-    const jobData = await scrapeJobUrl(url, source ?? "manual");
+    // Firecrawl + OG 메타 파싱
+    const data = await scrapeJobUrl(url, source ?? "manual");
 
-    // Firestore에 저장
+    // Firestore 저장 (undefined 필드 자동 제거됨 — firestore.ts에서 처리)
     const jobId = await addJob({
-      source: source ?? "manual",
+      source: data.source,
       sourceUrl: url,
-      company: jobData.company,
-      title: jobData.title,
-      jd: jobData.jd,
-      location: jobData.location,
-      salary: jobData.salary,
-      deadline: jobData.deadline,
-      scrapedAt: Timestamp.now(),
+      company: data.company,
+      title: data.title,
+      jd: {
+        mainTasks: "",
+        requirements: "",
+        preferred: "",
+        rawText: data.rawMarkdown,
+      },
+      experience: data.experience,
+      education: data.education,
+      salary: data.salary,
+      deadline: data.deadline,
+      location: data.location,
+      companyAddress: data.companyAddress,
+      foundedDate: data.foundedDate,
+      employeeCount: data.employeeCount,
+      revenue: data.revenue,
+      scrapedAt: FieldValue.serverTimestamp() as never,
     });
 
     return Response.json(
@@ -47,13 +58,18 @@ export async function POST(request: NextRequest) {
         success: true,
         data: {
           id: jobId,
-          company: jobData.company,
-          title: jobData.title,
+          company: data.company,
+          title: data.title,
+          experience: data.experience,
+          salary: data.salary,
+          deadline: data.deadline,
+          location: data.location,
         },
       },
       { status: 201 }
     );
   } catch (error) {
+    console.error("[/api/scrape] ERROR:", error);
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
     return Response.json(
       { success: false, error: message },

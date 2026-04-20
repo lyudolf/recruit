@@ -1,36 +1,33 @@
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  where,
-  Timestamp,
-  type DocumentData,
-} from "firebase/firestore";
-import { db } from "./config";
-import type { Job, Analysis, AnalysisStatus, JobSource, JobDescription } from "@/types";
+import { adminDb } from "./admin";
+import { FieldValue } from "firebase-admin/firestore";
+import type { Job, Analysis, AnalysisStatus, JobSource, JobDescription, RejectedStage } from "@/types";
 
 const JOBS_COLLECTION = "jobs";
 
 // ─── Firestore 문서 → Job 타입 변환 ───
-function docToJob(id: string, data: DocumentData): Job {
+function docToJob(id: string, data: FirebaseFirestore.DocumentData): Job {
   return {
     id,
-    source: data.source as JobSource,
+    source: (data.source ?? "manual") as JobSource,
     sourceUrl: data.sourceUrl ?? "",
     company: data.company ?? "",
     title: data.title ?? "",
-    jd: data.jd as JobDescription,
+    jd: (data.jd ?? { mainTasks: "", requirements: "", preferred: "", rawText: "" }) as JobDescription,
+    experience: data.experience,
+    education: data.education,
     location: data.location,
     salary: data.salary,
     deadline: data.deadline,
+    companyAddress: data.companyAddress,
+    foundedDate: data.foundedDate,
+    employeeCount: data.employeeCount,
+    revenue: data.revenue,
     analysis: data.analysis as Analysis | undefined,
-    analysisStatus: (data.analysisStatus ?? "pending") as AnalysisStatus,
+    analysisStatus: (data.analysisStatus ?? "scraped") as AnalysisStatus,
+    appliedAt: data.appliedAt,
+    interviewDate: data.interviewDate,
+    memo: data.memo,
+    rejectedStage: data.rejectedStage as RejectedStage | undefined,
     scrapedAt: data.scrapedAt,
     analyzedAt: data.analyzedAt,
     createdAt: data.createdAt,
@@ -38,43 +35,53 @@ function docToJob(id: string, data: DocumentData): Job {
   };
 }
 
-// ─── 전체 공고 목록 조회 (분석 완료된 항목을 fitScore 내림차순으로) ───
+// ─── 전체 공고 목록 조회 ───
 export async function getJobs(): Promise<Job[]> {
-  const q = query(
-    collection(db, JOBS_COLLECTION),
-    orderBy("createdAt", "desc")
-  );
+  const snapshot = await adminDb.collection(JOBS_COLLECTION).get();
+  return snapshot.docs.map((d) => docToJob(d.id, d.data()));
+}
 
-  const snapshot = await getDocs(q);
-  const jobs = snapshot.docs.map((d) => docToJob(d.id, d.data()));
+// ─── 상태별 공고 조회 ───
+export async function getJobsByStatus(statuses: AnalysisStatus[]): Promise<Job[]> {
+  const snapshot = await adminDb
+    .collection(JOBS_COLLECTION)
+    .where("analysisStatus", "in", statuses)
+    .get();
+  return snapshot.docs.map((d) => docToJob(d.id, d.data()));
+}
 
-  // 클라이언트 사이드에서 fitScore 기준 정렬 (분석 완료 → 미완료 순)
-  return jobs.sort((a, b) => {
-    const scoreA = a.analysis?.fitScore ?? -1;
-    const scoreB = b.analysis?.fitScore ?? -1;
-    return scoreB - scoreA;
-  });
+// ─── 다음 queued 공고 1건 조회 ───
+export async function getNextQueuedJob(): Promise<Job | null> {
+  const snapshot = await adminDb
+    .collection(JOBS_COLLECTION)
+    .where("analysisStatus", "==", "queued")
+    .limit(1)
+    .get();
+  if (snapshot.empty) return null;
+  const doc = snapshot.docs[0];
+  return docToJob(doc.id, doc.data());
 }
 
 // ─── 단일 공고 조회 ───
 export async function getJobById(id: string): Promise<Job | null> {
-  const docRef = doc(db, JOBS_COLLECTION, id);
-  const snapshot = await getDoc(docRef);
-
-  if (!snapshot.exists()) return null;
-  return docToJob(snapshot.id, snapshot.data());
+  const doc = await adminDb.collection(JOBS_COLLECTION).doc(id).get();
+  if (!doc.exists) return null;
+  return docToJob(doc.id, doc.data()!);
 }
 
 // ─── 공고 추가 ───
 export async function addJob(
   jobData: Omit<Job, "id" | "createdAt" | "updatedAt" | "analysisStatus">
 ): Promise<string> {
-  const now = Timestamp.now();
-  const docRef = await addDoc(collection(db, JOBS_COLLECTION), {
-    ...jobData,
-    analysisStatus: "pending",
-    createdAt: now,
-    updatedAt: now,
+  const cleanData = Object.fromEntries(
+    Object.entries(jobData).filter(([, v]) => v !== undefined)
+  );
+
+  const docRef = await adminDb.collection(JOBS_COLLECTION).add({
+    ...cleanData,
+    analysisStatus: "scraped",
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   });
   return docRef.id;
 }
@@ -84,12 +91,11 @@ export async function updateJobAnalysis(
   id: string,
   analysis: Analysis
 ): Promise<void> {
-  const docRef = doc(db, JOBS_COLLECTION, id);
-  await updateDoc(docRef, {
+  await adminDb.collection(JOBS_COLLECTION).doc(id).update({
     analysis,
     analysisStatus: "completed" as AnalysisStatus,
-    analyzedAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+    analyzedAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   });
 }
 
@@ -98,25 +104,39 @@ export async function updateAnalysisStatus(
   id: string,
   status: AnalysisStatus
 ): Promise<void> {
-  const docRef = doc(db, JOBS_COLLECTION, id);
-  await updateDoc(docRef, {
+  await adminDb.collection(JOBS_COLLECTION).doc(id).update({
     analysisStatus: status,
-    updatedAt: Timestamp.now(),
+    updatedAt: FieldValue.serverTimestamp(),
   });
+}
+
+// ─── 일괄 상태 업데이트 ───
+export async function bulkUpdateStatus(
+  ids: string[],
+  status: AnalysisStatus
+): Promise<void> {
+  const batch = adminDb.batch();
+  for (const id of ids) {
+    const ref = adminDb.collection(JOBS_COLLECTION).doc(id);
+    batch.update(ref, {
+      analysisStatus: status,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  }
+  await batch.commit();
 }
 
 // ─── 공고 삭제 ───
 export async function deleteJob(id: string): Promise<void> {
-  const docRef = doc(db, JOBS_COLLECTION, id);
-  await deleteDoc(docRef);
+  await adminDb.collection(JOBS_COLLECTION).doc(id).delete();
 }
 
 // ─── URL 기준 중복 체크 ───
 export async function isJobExists(sourceUrl: string): Promise<boolean> {
-  const q = query(
-    collection(db, JOBS_COLLECTION),
-    where("sourceUrl", "==", sourceUrl)
-  );
-  const snapshot = await getDocs(q);
+  const snapshot = await adminDb
+    .collection(JOBS_COLLECTION)
+    .where("sourceUrl", "==", sourceUrl)
+    .limit(1)
+    .get();
   return !snapshot.empty;
 }
