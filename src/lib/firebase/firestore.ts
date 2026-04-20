@@ -24,6 +24,7 @@ function docToJob(id: string, data: FirebaseFirestore.DocumentData): Job {
     revenue: data.revenue,
     analysis: data.analysis as Analysis | undefined,
     analysisStatus: (data.analysisStatus ?? "scraped") as AnalysisStatus,
+    bookmarked: data.bookmarked ?? false,
     appliedAt: data.appliedAt,
     interviewDate: data.interviewDate,
     memo: data.memo,

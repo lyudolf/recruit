@@ -78,6 +78,7 @@ export async function PATCH(
     if (body.interviewDate !== undefined) updateData.interviewDate = body.interviewDate;
     if (body.memo !== undefined) updateData.memo = body.memo;
     if (body.rejectedStage !== undefined) updateData.rejectedStage = body.rejectedStage;
+    if (body.bookmarked !== undefined) updateData.bookmarked = body.bookmarked;
 
     if (Object.keys(updateData).length === 0) {
       return Response.json(

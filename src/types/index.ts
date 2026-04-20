@@ -57,6 +57,7 @@ export interface Job {
   revenue?: string;
   analysis?: Analysis;
   analysisStatus: AnalysisStatus;
+  bookmarked?: boolean;            // 관심 공고 여부
   // 지원 관리 필드
   appliedAt?: Timestamp;         // 지원 완료 일시
   interviewDate?: string;        // 면접 예정일 (YYYY-MM-DD)
