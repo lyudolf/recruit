@@ -138,13 +138,13 @@ export default function ApplicationsPage() {
                       {/* 지원완료 → 서류합격 / 불합격 */}
                       {job.analysisStatus === "applied" && (
                         <>
-                          <Button size="sm" variant="outline"
-                            className="gap-1 border-cyan-300 text-[11px] text-cyan-700 hover:bg-cyan-50"
+                          <Button size="sm"
+                            className="w-24 gap-1 bg-emerald-600 text-[11px] text-white hover:bg-emerald-700"
                             onClick={() => handleStatusChange(job.id, "passed")}>
                             <FileCheck className="h-3 w-3" /> 서류합격
                           </Button>
-                          <Button size="sm" variant="outline"
-                            className="gap-1 border-rose-300 text-[11px] text-rose-600 hover:bg-rose-50"
+                          <Button size="sm"
+                            className="w-24 gap-1 bg-rose-600 text-[11px] text-white hover:bg-rose-700"
                             onClick={() => handleStatusChange(job.id, "rejected")}>
                             <XCircle className="h-3 w-3" /> 불합격
                           </Button>
@@ -154,12 +154,12 @@ export default function ApplicationsPage() {
                       {job.analysisStatus === "passed" && (
                         <>
                           <Button size="sm" variant="outline"
-                            className="gap-1 border-indigo-300 text-[11px] text-indigo-700 hover:bg-indigo-50"
+                            className="w-24 gap-1 border-indigo-300 text-[11px] text-indigo-700 hover:bg-indigo-50"
                             onClick={() => handleStatusChange(job.id, "interview")}>
                             <CalendarDays className="h-3 w-3" /> 면접대기
                           </Button>
-                          <Button size="sm" variant="outline"
-                            className="gap-1 border-rose-300 text-[11px] text-rose-600 hover:bg-rose-50"
+                          <Button size="sm"
+                            className="w-24 gap-1 bg-rose-600 text-[11px] text-white hover:bg-rose-700"
                             onClick={() => handleStatusChange(job.id, "rejected")}>
                             <XCircle className="h-3 w-3" /> 불합격
                           </Button>
@@ -169,12 +169,12 @@ export default function ApplicationsPage() {
                       {job.analysisStatus === "interview" && (
                         <>
                           <Button size="sm"
-                            className="gap-1 bg-green-600 text-[11px] hover:bg-green-700"
+                            className="w-24 gap-1 bg-green-600 text-[11px] text-white hover:bg-green-700"
                             onClick={() => handleStatusChange(job.id, "hired")}>
                             <Trophy className="h-3 w-3" /> 최종합격
                           </Button>
-                          <Button size="sm" variant="outline"
-                            className="gap-1 border-rose-300 text-[11px] text-rose-600 hover:bg-rose-50"
+                          <Button size="sm"
+                            className="w-24 gap-1 bg-rose-600 text-[11px] text-white hover:bg-rose-700"
                             onClick={() => handleStatusChange(job.id, "rejected")}>
                             <XCircle className="h-3 w-3" /> 불합격
                           </Button>
