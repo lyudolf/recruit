@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "대시보드", icon: BarChart3 },
-  { href: "/bookmarks", label: "관심 공고", icon: Heart },
   { href: "/applications", label: "지원 현황", icon: Send },
+  { href: "/bookmarks", label: "관심 공고", icon: Heart },
   { href: "/analyze", label: "공고 분석", icon: Sparkles },
   { href: "#settings", label: "설정", icon: Settings },
 ];
